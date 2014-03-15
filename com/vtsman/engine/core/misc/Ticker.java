@@ -2,10 +2,12 @@ package com.vtsman.engine.core.misc;
 
 import java.util.*;
 
+import com.vtsman.engine.core.Game;
+
 public class Ticker implements Runnable {
 	private HashSet<ITickable> tickables = new HashSet<ITickable>();
 	private boolean alive = true;
-
+	public int ticktime = 20;
 	@Override
 	public void run() {
 		while (true) {
@@ -20,15 +22,19 @@ public class Ticker implements Runnable {
 					}
 				}
 			}
-			if (System.currentTimeMillis() - start < 20) {
+			if (System.currentTimeMillis() - start < ticktime) {
 				try {
-					Thread.sleep(20 - (System.currentTimeMillis() - start));
+					Thread.sleep(ticktime - (System.currentTimeMillis() - start));
 				} catch (InterruptedException e) {
 				}
 			}
 		}
 	}
 
+	public synchronized void addEssentials(){
+		tickables.add(Game.keyHandler);
+	}
+	
 	public synchronized void kill() {
 		alive = false;
 	}
@@ -45,4 +51,8 @@ public class Ticker implements Runnable {
 		tickables.remove(t);
 	}
 
+	public synchronized void flush(){
+		tickables = new HashSet<ITickable>();
+	}
+	
 }

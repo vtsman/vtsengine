@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.vtsman.engine.core.graphics.IRenderer;
 import com.vtsman.engine.core.graphics.RenderManager;
 import com.vtsman.engine.core.graphics.RenderType;
@@ -59,7 +60,7 @@ public class RenderTexture implements IRenderer {
 
 	public synchronized void setRotation(float rot) {
 		if (s != null)
-			s.setRotation(rot);
+			s.setRotation(360 - rot);
 	}
 
 	public synchronized void setAlpha(float alpha) {

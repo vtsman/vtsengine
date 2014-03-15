@@ -3,40 +3,32 @@ package com.vtsman.engine.core;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.vtsman.engine.core.graphics.RenderManager;
 import com.vtsman.engine.core.graphics.TextureRepo;
 import com.vtsman.engine.core.map.Map;
-import com.vtsman.engine.core.map.MapParser;
 import com.vtsman.engine.core.misc.KeyHandler;
 import com.vtsman.engine.core.misc.ScreenshotHandler;
-import com.vtsman.engine.core.misc.TestKey;
 import com.vtsman.engine.core.misc.Ticker;
 import com.vtsman.engine.core.sound.SoundRepo;
-import com.vtsman.engine.primitive.graphics.PolyWire;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 
 public class Game implements ApplicationListener {
 	private static Ticker t = new Ticker();
 	private static RenderManager rm;
 	private static Game game;
-	public static Map m;
 	public static RenderTexture te;
 	public static Body b;
 	public static final KeyHandler keyHandler = new KeyHandler();
+	public static Map loadedMap;
 	@Override
 	public void create() {
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		TextureRepo.scan(Gdx.files.internal("./bin/textures/"));
 		SoundRepo.scan(Gdx.files.internal("./bin/sounds/"));
 		rm = new RenderManager();
-		t.add(keyHandler);
-		
-		m = new MapParser().decodeMap(Gdx.files.internal("./bin/maps/test.map").readString());
-		t.add(m);
+		t.addEssentials();
 		
 		game = this;
 		new Thread(t).start();

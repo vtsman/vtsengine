@@ -1,5 +1,5 @@
 package com.vtsman.engine.core.misc;
 
-public interface ISubscribable {
+public interface ISubscriber {
 	public void onEvent(String event);
 }

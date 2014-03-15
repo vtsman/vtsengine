@@ -35,7 +35,9 @@ public class Map implements ITickable {
 	
 	public void addObject(Object o){
 		if(o instanceof Entity){
-			addEntity((Entity)o);
+			((Entity)o).create(this);
+			System.out.println(o.getClass().getName());
+		//	((Entity)o).setPosition(((Entity)o).spawnPos);
 		}
 		if(o instanceof IRenderer){
 			Game.getRenderer().addRenderer((IRenderer) o);

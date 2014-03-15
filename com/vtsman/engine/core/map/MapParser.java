@@ -18,6 +18,7 @@ public class MapParser {
 		objConst.put("decoration", new MakeDecor());
 		objConst.put("platform", new MakePhysRect(BodyType.StaticBody));
 		objConst.put("box", new MakePhysRect(BodyType.DynamicBody));
+		objConst.put("player", new MakePlayer());
 	}
 	
 	public Map decodeMap(String s){
@@ -34,6 +35,14 @@ public class MapParser {
 		if(madeObjects.containsKey("background")){
 			Game.getRenderer().setBg((RenderTexture) madeObjects.get("background"));
 			madeObjects.remove("background");
+		}
+		if(madeObjects.containsKey("background2")){
+			Game.getRenderer().setBg((RenderTexture) madeObjects.get("background2"));
+			madeObjects.remove("background2");
+		}
+		if(madeObjects.containsKey("foreground")){
+			Game.getRenderer().setBg((RenderTexture) madeObjects.get("foreground"));
+			madeObjects.remove("foreground");
 		}
 		
 		for(java.util.Map.Entry<String, Object> a : madeObjects.entrySet()){
