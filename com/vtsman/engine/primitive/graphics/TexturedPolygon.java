@@ -2,9 +2,12 @@ package com.vtsman.engine.primitive.graphics;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.PolygonSprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.vtsman.engine.core.graphics.IRenderer;
 import com.vtsman.engine.core.graphics.RenderManager;
@@ -13,54 +16,57 @@ import com.vtsman.engine.core.graphics.TextureRepo;
 
 public class TexturedPolygon implements IRenderer {
 	PolygonSprite ps;
-
-	public TexturedPolygon(float[] verts) {
-		short[] ind = new short[(verts.length / 2 - 2) * 3];
-		for(int i = 0; i < ind.length / 3; i++){
-			ind[i * 3] = 0;
-			ind[i*3 + 1] = (short) (i + 1);
-			ind[i*3 + 2] = (short) (i + 2);
-		}
-		System.out.println(Arrays.toString(ind));
+	Body bound;
+	int layer;
+	static final EarClippingTriangulator tr = new EarClippingTriangulator();
+	public TexturedPolygon(float[] verts, Texture t, int layer) {
 		PolygonRegion polyReg = new PolygonRegion(new TextureRegion(
-				TextureRepo.getTexture("rainbow")), verts, ind);
+				t), verts, tr.computeTriangles(verts).items);
 		ps = new PolygonSprite(polyReg);
 		ps.setOrigin(0, 0);
+		this.layer = layer;
 	}
 
 	@Override
 	public void render(RenderManager rm) {
+		if(bound != null){
+			setPosition(bound.getPosition().x * 60, bound.getPosition().y * 60);
+			setRotation((float) Math.toDegrees(bound.getAngle()));
+		}
 		ps.draw(rm.polySpriteBatch);
 	}
 
 	@Override
 	public RenderType getRenderType() {
-		// TODO Auto-generated method stub
 		return RenderType.polySprite;
 	}
 
 	@Override
 	public int getLayer() {
-		// TODO Auto-generated method stub
-		return 0;
+		return layer;
 	}
 
 	@Override
 	public void setPosition(float x, float y) {
-		// TODO Auto-generated method stub
-
+		ps.setPosition(x, y);
 	}
 
 	@Override
 	public void setRotation(float rot) {
-		// TODO Auto-generated method stub
-
+		ps.setRotation(rot);
 	}
 
+	public void setColor(Color c){
+		ps.setColor(c);
+	}
+	
+	public void setScale(float x, float y){
+		ps.setScale(x, y);
+	}
+	
 	@Override
 	public void bindToBody(Body b) {
-		// TODO Auto-generated method stub
-
+		bound = b;
 	}
 
 }

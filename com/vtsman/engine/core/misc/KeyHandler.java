@@ -18,6 +18,7 @@ public class KeyHandler implements ITickable {
 		keys.put("left", Keys.A);
 		keys.put("right", Keys.D);
 		keys.put("jump", Keys.SPACE);
+		keys.put("use", Keys.F);
 
 		keys.put("dev", Keys.BACKSLASH);
 	}

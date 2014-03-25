@@ -5,14 +5,15 @@ import java.util.HashMap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.vtsman.engine.core.Game;
+import com.vtsman.engine.core.utils.ArrayWrapper;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 
 public class MapParser {
 	private HashMap<String, Object> madeObjects = new HashMap<String, Object>();
-	public static final HashMap<String, ObjectConstructer> objConst = new HashMap<String, ObjectConstructer>();
+	public static final HashMap<String, ObjectConstructor> objConst = new HashMap<String, ObjectConstructor>();
 	private boolean inBraces = false;
 	private String objName = null;
-	private ObjectConstructer currentConst = null;
+	private ObjectConstructor currentConst = null;
 	
 	static {
 		objConst.put("decoration", new MakeDecor());
@@ -21,6 +22,9 @@ public class MapParser {
 		objConst.put("circle_platform", new MakePhysCircle(BodyType.StaticBody));
 		objConst.put("circle_box", new MakePhysCircle(BodyType.DynamicBody));
 		objConst.put("player", new MakePlayer());
+		objConst.put("poly_decoration", new MakeDecorPoly());
+		objConst.put("poly_playform", new MakePhysPoly(BodyType.StaticBody));
+		objConst.put("poly_box", new MakePhysPoly(BodyType.DynamicBody));
 	}
 	
 	public Map decodeMap(String s){
@@ -32,7 +36,8 @@ public class MapParser {
 		}
 		
 		if(madeObjects.containsKey("gravity")){
-			out.world.setGravity((Vector2) madeObjects.get("gravity"));
+			Object[] g = ((ArrayWrapper)madeObjects.get("gravity")).getArr();
+			out.world.setGravity(new Vector2((Float)g[0], (Float)g[1]));
 		}
 		if(madeObjects.containsKey("background")){
 			Game.getRenderer().setBg((RenderTexture) madeObjects.get("background"));
@@ -107,8 +112,14 @@ public class MapParser {
 			return s.substring(1, s.length() - 1);
 		}
 		if(s.contains(",")){
-			String[] ints = s.split(",");
-			return new Vector2(Float.parseFloat(ints[0]), Float.parseFloat(ints[1]));
+			ArrayWrapper out = new ArrayWrapper();
+			String[] entries = s.split(",");
+			Object[] objs = new Object[entries.length];
+			for(int i = 0; i < entries.length; i++){
+				objs[i] = parseArg(entries[i]);
+			}
+			out.setArr(objs);
+			return out;
 		}
 		if(s.equals("true")){
 			return true;

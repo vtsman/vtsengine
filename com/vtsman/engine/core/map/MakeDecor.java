@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.vtsman.engine.core.graphics.TextureRepo;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 
-public class MakeDecor implements ObjectConstructer {
+public class MakeDecor implements ObjectConstructor {
 	int x = 0;
 	int y = 0;
 	int width = 1;

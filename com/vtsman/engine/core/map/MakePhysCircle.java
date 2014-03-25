@@ -7,7 +7,7 @@ import com.vtsman.engine.core.graphics.TextureRepo;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 import com.vtsman.engine.primitive.physics.BodyMaker;
 
-public class MakePhysCircle implements ObjectConstructer {
+public class MakePhysCircle implements ObjectConstructor {
 	BodyType bt;
 
 	public MakePhysCircle(BodyType b) {

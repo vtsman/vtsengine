@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.vtsman.engine.core.Game;
 import com.vtsman.engine.core.graphics.IRenderer;
 import com.vtsman.engine.core.misc.Entity;
+import com.vtsman.engine.core.misc.ISubscriber;
 import com.vtsman.engine.core.misc.ITickable;
 import com.vtsman.engine.gameObjects.entities.Player;
 
@@ -26,7 +27,8 @@ public class Map implements ITickable {
 	private List<Entity> entities = new ArrayList<Entity>();
 	private ArrayList<Player> players = new ArrayList<Player>();
 	private ArrayList<Fixture> playfix = new ArrayList<Fixture>();
-
+	private HashMap<Fixture, String> fixName = new HashMap<Fixture, String>();
+	private HashMap<String, HashMap<Fixture, ISubscriber>> subbed = new HashMap<String, HashMap<Fixture, ISubscriber>>();
 	Map() {
 		world.setContactListener(new ContactListener() {
 
@@ -40,6 +42,26 @@ public class Map implements ITickable {
 				if (playfix.contains(contact.getFixtureB())) {
 					players.get(playfix.indexOf(contact.getFixtureB())).onGround++;
 				}
+				if(fixName.containsKey(contact.getFixtureA())){
+					String event = fixName.get(contact.getFixtureA());
+					if(!subbed.containsKey(event)){
+						return;
+					}
+					if(!subbed.get(event).containsKey(contact.getFixtureB())){
+						return;
+					}
+					subbed.get(event).get(contact.getChildIndexB()).onEvent("start" + event);
+				}
+				if(fixName.containsKey(contact.getFixtureB())){
+					String event = fixName.get(contact.getFixtureB());
+					if(!subbed.containsKey(event)){
+						return;
+					}
+					if(!subbed.get(event).containsKey(contact.getFixtureA())){
+						return;
+					}
+					subbed.get(event).get(contact.getChildIndexA()).onEvent("start" + event);
+				}
 			}
 
 			@Override
@@ -51,6 +73,26 @@ public class Map implements ITickable {
 				}
 				if (playfix.contains(contact.getFixtureB())) {
 					players.get(playfix.indexOf(contact.getFixtureB())).onGround--;
+				}
+				if(fixName.containsKey(contact.getFixtureA())){
+					String event = fixName.get(contact.getFixtureA());
+					if(!subbed.containsKey(event)){
+						return;
+					}
+					if(!subbed.get(event).containsKey(contact.getFixtureB())){
+						return;
+					}
+					subbed.get(event).get(contact.getChildIndexB()).onEvent("end" + event);
+				}
+				if(fixName.containsKey(contact.getFixtureB())){
+					String event = fixName.get(contact.getFixtureB());
+					if(!subbed.containsKey(event)){
+						return;
+					}
+					if(!subbed.get(event).containsKey(contact.getFixtureA())){
+						return;
+					}
+					subbed.get(event).get(contact.getChildIndexA()).onEvent("end" + event);
 				}
 			}
 
@@ -89,11 +131,20 @@ public class Map implements ITickable {
 		if (o instanceof Entity) {
 			((Entity) o).create(this);
 			addEntity((Entity) o);
-			System.out.println(o.getClass().getName());
-			// ((Entity)o).setPosition(((Entity)o).spawnPos);
 		}
 		if (o instanceof IRenderer) {
 			Game.getRenderer().addRenderer((IRenderer) o);
 		}
+	}
+	
+	public void addFixtureEvent(Fixture f, String name){
+		fixName.put(f, name);
+	}
+	
+	public void subscribeToFixtureEvent(String event, Fixture f, ISubscriber subber){
+		if(!subbed.containsKey(event)){
+			subbed.put(event, new HashMap<Fixture, ISubscriber>());
+		}
+		subbed.get(event).put(f, subber);
 	}
 }

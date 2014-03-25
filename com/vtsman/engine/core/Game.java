@@ -1,5 +1,7 @@
 package com.vtsman.engine.core;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -15,6 +17,9 @@ import com.vtsman.engine.core.misc.KeyHandler;
 import com.vtsman.engine.core.misc.ScreenshotHandler;
 import com.vtsman.engine.core.misc.Ticker;
 import com.vtsman.engine.core.sound.SoundRepo;
+import com.vtsman.engine.core.utils.IBoolExpr;
+import com.vtsman.engine.core.utils.MathUtils;
+import com.vtsman.engine.core.utils.StringLogic;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 import com.vtsman.engine.primitive.graphics.TexturedPolygon;
 
@@ -48,12 +53,7 @@ public class Game implements ApplicationListener {
 		debugMatrix.translate(-4f, -8f/3f, 0f);
 		debugRenderer=new Box2DDebugRenderer();
 		keyHandler.subscribe(new DevConsole(), "dev");
-		rm.addRenderer(new TexturedPolygon(new float[] {
-				0, 0,
-				0, 100,
-				50, 150,
-				100, 100,
-				100, 0}));
+		System.out.println(new StringLogic("true && ! (false || ! false)", new HashMap<String, IBoolExpr>()).evaluate(null));
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import com.vtsman.engine.core.graphics.TextureRepo;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 import com.vtsman.engine.primitive.physics.BodyMaker;
 
-public class MakePhysRect implements ObjectConstructer {
+public class MakePhysRect implements ObjectConstructor {
 	BodyType bt;
 
 	public MakePhysRect(BodyType b) {
