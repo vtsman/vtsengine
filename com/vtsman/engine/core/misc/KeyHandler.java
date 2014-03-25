@@ -20,29 +20,24 @@ public class KeyHandler implements ITickable {
 		keys.put("jump", Keys.SPACE);
 
 		keys.put("dev", Keys.BACKSLASH);
-		subscribe(new DevConsole(), "dev");
 	}
 
 	@Override
-	public void tick() {
-		synchronized (KeyHandler.class) {
-			for (Entry<ISubscriber, ArrayList<String>> a : subbed.entrySet()) {
-				for (String s : a.getValue()) {
-					if (Gdx.input.isKeyPressed(keys.get(s).intValue())) {
-						((ISubscriber) a.getKey()).onEvent(s);
-					}
+	public synchronized void tick() {
+		for (Entry<ISubscriber, ArrayList<String>> a : subbed.entrySet()) {
+			for (String s : a.getValue()) {
+				if (Gdx.input.isKeyPressed(keys.get(s).intValue())) {
+					((ISubscriber) a.getKey()).onEvent(s);
 				}
 			}
 		}
 	}
 
-	public static void subscribe(ISubscriber s, String key) {
-		synchronized (KeyHandler.class) {
-			if (!subbed.containsKey(s)) {
-				subbed.put(s, new ArrayList<String>());
-			}
-			subbed.get(s).add(key);
+	public synchronized void subscribe(ISubscriber s, String key) {
+		if (!subbed.containsKey(s)) {
+			subbed.put(s, new ArrayList<String>());
 		}
+		subbed.get(s).add(key);
 	}
 
 	static synchronized public void addKey(String name, int key) {
@@ -51,6 +46,10 @@ public class KeyHandler implements ITickable {
 
 	public synchronized void remove(ISubscriber s) {
 		subbed.remove(s);
+	}
+
+	public boolean isButtonPressed(String s) {
+		return Gdx.input.isButtonPressed(keys.get(s));
 	}
 
 }

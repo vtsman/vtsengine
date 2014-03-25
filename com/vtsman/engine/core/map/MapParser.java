@@ -18,6 +18,8 @@ public class MapParser {
 		objConst.put("decoration", new MakeDecor());
 		objConst.put("platform", new MakePhysRect(BodyType.StaticBody));
 		objConst.put("box", new MakePhysRect(BodyType.DynamicBody));
+		objConst.put("circle_platform", new MakePhysCircle(BodyType.StaticBody));
+		objConst.put("circle_box", new MakePhysCircle(BodyType.DynamicBody));
 		objConst.put("player", new MakePlayer());
 	}
 	

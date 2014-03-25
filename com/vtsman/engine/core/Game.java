@@ -4,15 +4,19 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.vtsman.engine.core.graphics.RenderManager;
 import com.vtsman.engine.core.graphics.TextureRepo;
 import com.vtsman.engine.core.map.Map;
+import com.vtsman.engine.core.misc.DevConsole;
 import com.vtsman.engine.core.misc.KeyHandler;
 import com.vtsman.engine.core.misc.ScreenshotHandler;
 import com.vtsman.engine.core.misc.Ticker;
 import com.vtsman.engine.core.sound.SoundRepo;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
+import com.vtsman.engine.primitive.graphics.TexturedPolygon;
 
 public class Game implements ApplicationListener {
 	private static Ticker t = new Ticker();
@@ -22,6 +26,9 @@ public class Game implements ApplicationListener {
 	public static Body b;
 	public static final KeyHandler keyHandler = new KeyHandler();
 	public static Map loadedMap;
+	Box2DDebugRenderer debugRenderer;
+	Matrix4 debugMatrix;
+	public static boolean devMode = false;
 	@Override
 	public void create() {
 		Gdx.gl.glEnable(GL10.GL_BLEND);
@@ -32,7 +39,21 @@ public class Game implements ApplicationListener {
 		
 		game = this;
 		new Thread(t).start();
-		
+		if(Gdx.files.internal("./bin/auto.conf").exists()){
+			System.out.println("Found auto-config file");
+			DevConsole.evaluate(Gdx.files.internal("./bin/auto.conf").readString().split("\n"));
+		}
+		debugMatrix = RenderManager.getCamera().combined;
+		debugMatrix.scale(1f/8f, 1f/8f, 1f);
+		debugMatrix.translate(-4f, -8f/3f, 0f);
+		debugRenderer=new Box2DDebugRenderer();
+		keyHandler.subscribe(new DevConsole(), "dev");
+		rm.addRenderer(new TexturedPolygon(new float[] {
+				0, 0,
+				0, 100,
+				50, 150,
+				100, 100,
+				100, 0}));
 	}
 
 	@Override
@@ -44,8 +65,20 @@ public class Game implements ApplicationListener {
 	public void render() {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
-		rm.render();
+		if(devMode && Gdx.input.isKeyPressed(Keys.V) && loadedMap != null){
+			rm.spriteBatch.begin();
+			debugRenderer.render(loadedMap.world, debugMatrix);
+			rm.spriteBatch.end();
+		}
+		else if(devMode && Gdx.input.isKeyPressed(Keys.C) && loadedMap != null){
+			rm.render();
+			rm.spriteBatch.begin();
+			debugRenderer.render(loadedMap.world, debugMatrix);
+			rm.spriteBatch.end();
+		}
+		else{
+			rm.render();
+		}
 		
 		if(Gdx.input.isKeyPressed(Keys.S)){
 			ScreenshotHandler.saveScreenshot(Gdx.files.external("/Users/Spencer/Documents/screenshot.png"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

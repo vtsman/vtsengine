@@ -6,7 +6,6 @@ import javax.swing.JOptionPane;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.vtsman.engine.core.Game;
-import com.vtsman.engine.core.map.Map;
 import com.vtsman.engine.core.map.MapParser;
 import com.vtsman.engine.gameObjects.entities.Bullet;
 import com.vtsman.engine.gameObjects.entities.Player;
@@ -24,6 +23,9 @@ public class DevConsole implements ISubscriber {
 			return;
 		}
 		String[] commands = s.split("; ");
+		evaluate(commands);
+	}
+	public static void evaluate(String[] commands){
 		for (String st : commands) {
 			String[] args = st.split(" ");
 			if (args[0].matches("load")) {
@@ -48,7 +50,7 @@ public class DevConsole implements ISubscriber {
 						return;
 					Bullet b = new Bullet(new Vector2((float)Integer.parseInt(args[2]), (float)Integer.parseInt(args[3]))
 					, new Vector2((float)Integer.parseInt(args[4]), (float)Integer.parseInt(args[5]))
-					,Integer.parseInt(args[6]) , Game.loadedMap, Float.parseFloat(args[7]), args[8], 10);
+					,Integer.parseInt(args[6]) , Float.parseFloat(args[7]), args[8], 10);
 					Game.loadedMap.addObject(b);
 				}
 			}
@@ -61,11 +63,14 @@ public class DevConsole implements ISubscriber {
 			if(args[0].equals("setTickDelay")){
 				Game.getTicker().ticktime = Integer.parseInt(args[1]);
 			}
-			if(args[0].equals("terminateConsole")){
-				Game.keyHandler.remove(this);
-				KeyHandler.subscribe(new DevConsole(), "dev");
+			if(args[0].equals("devMode")){
+				if(args[1].equals("true")){
+					Game.devMode = true;
+				}
+				else{
+					Game.devMode = false;
+				}
 			}
 		}
 	}
-
 }

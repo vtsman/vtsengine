@@ -73,7 +73,7 @@ public class RenderTexture implements IRenderer {
 			return;
 		if (bod != null) {
 			s.setPosition(bod.getPosition().x * 60 - s.getWidth() / 2, bod.getPosition().y * 60 - s.getHeight() / 2);
-			s.setRotation(bod.getAngle());
+			s.setRotation((float) Math.toDegrees(bod.getAngle()));
 		}
 		s.draw(rm.spriteBatch);
 	}

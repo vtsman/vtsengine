@@ -16,15 +16,17 @@ import com.vtsman.engine.primitive.physics.BodyMaker;
 
 public class Bullet extends Entity{
 	RenderTexture renderer;
-	public Bullet(Vector2 pos, Vector2 dimensions, int angle, Map owner, float velocity, String texture, int layer) {
+	int angle;
+	Vector2 pos;
+	float velocity;
+	public Bullet(Vector2 pos, Vector2 dimensions, int angle, float velocity, String texture, int layer) {
 		super(pos);
+		this.angle = angle;
+		this.pos = pos;
+		this.velocity = velocity;
 		this.body = BodyMaker.makeRectangle(dimensions.x, dimensions.y, pos.x, pos.y, 0, 0, 1, BodyType.DynamicBody);
-		this.body.getBody(owner.world).setGravityScale(0);
-		this.body.getBody(null).setTransform(pos.x, pos.y, angle);
-		this.body.getBody(null).applyForceToCenter(new Vector2(velocity, 0), true);
 		this.renderer = new RenderTexture(TextureRepo.getTexture(texture), layer);
 		this.renderer.setDimensions((int)dimensions.x, (int)dimensions.y);
-		this.renderer.bindToBody(this.body.getBody(null));
 	}
 
 	@Override
@@ -49,7 +51,18 @@ public class Bullet extends Entity{
 
 	@Override
 	public IRenderer getRenderer() {
+		System.out.println("here");
 		return this.renderer;
+	}
+	
+	@Override
+	public void create(Map parent){
+		super.create(parent);
+		this.body.getBody(null).setGravityScale(0);
+		this.body.getBody(null).setTransform(pos.x, pos.y, (float) Math.toRadians(angle));
+		this.body.getBody(null).applyForceToCenter(new Vector2(velocity, 0), true);
+		this.body.getBody(null).setFixedRotation(true);
+		this.renderer.bindToBody(this.body.getBody(null));
 	}
 
 	@Override
