@@ -2,9 +2,11 @@ package com.vtsman.engine.core.map;
 
 import java.util.HashMap;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.vtsman.engine.core.Game;
+import com.vtsman.engine.core.misc.Sensor;
 import com.vtsman.engine.core.utils.ArrayWrapper;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 
@@ -29,7 +31,6 @@ public class MapParser {
 	
 	public Map decodeMap(String s){
 		Map out = new Map();
-		
 		String[] lines = s.split("\n");
 		for(String l : lines){
 			executeString(l, out);
@@ -51,9 +52,23 @@ public class MapParser {
 			Game.getRenderer().setBg((RenderTexture) madeObjects.get("foreground"));
 			madeObjects.remove("foreground");
 		}
+		if(madeObjects.containsKey("dimensions")){
+			Object[] g = ((ArrayWrapper)madeObjects.get("dimensions")).getArr();
+			out.height = (Integer) g[1];
+			out.width = (Integer) g[0];
+			Game.getRenderer().setFrameDimensions((Integer) g[0], (Integer) g[1]);
+		}
+		else{
+			out.height = (Integer) Gdx.graphics.getWidth();
+			out.width = (Integer) Gdx.graphics.getHeight();
+			Game.getRenderer().setFrameDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		}
 		
 		for(java.util.Map.Entry<String, Object> a : madeObjects.entrySet()){
 			out.addObject(a.getValue());
+			if(a.getValue() instanceof Sensor){
+				out.sensors.put(a.getKey(), (Sensor) a.getValue());
+			}
 		}
 		return out;
 	}

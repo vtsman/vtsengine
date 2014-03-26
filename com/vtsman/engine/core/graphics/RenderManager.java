@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
 
 public class RenderManager {
@@ -24,16 +26,56 @@ public class RenderManager {
 	private RenderTexture fg;
 
 	private ArrayList<RenderLayer> renderList = new ArrayList<RenderLayer>();
-
+	float w;
+	float h;
+	
+	int frameW;
+	int frameH;
+	
 	public RenderManager() {
-		float w = Gdx.graphics.getWidth();
-		float h = Gdx.graphics.getHeight();
+		w = Gdx.graphics.getWidth();
+		h = Gdx.graphics.getHeight();
 
-		camera = new OrthographicCamera(1, h / w);
+		camera = new OrthographicCamera(w, h);
+		camera.position.set(w / 2, h / 2, 0);
+	}
+	//TODO camera smoothing
+	public void setCamera(int x, int y){
+		if(x < 0){
+			x = 0;
+		}
+		if(y < 0){
+			y = 0;
+		}
+		if(x + w > frameW){
+			x = (int) (frameW - w);
+		}
+		
+		if(y + h > frameH){
+			y = (int) (frameH - h);
+		}
+		camera.position.set(x + w / 2, y + h / 2, 0);
+		camera.update();
+        camera.apply(Gdx.gl10);
+		
+		spriteBatch.setProjectionMatrix(camera.combined);
+		polySpriteBatch.setProjectionMatrix(camera.combined);
+	}
+	Body bound;
+	public void bindToBody(Body b){
+		bound = b;
+	}
+	
+	public void setFrameDimensions(int w, int h){
+		frameW = w;
+		frameH = h;
 	}
 
 	public synchronized void render() {
 		// render background
+		
+		//Gdx.gl10.glViewport(0, 0, (int)w, (int)h);
+		setCamera(0, 0);
 		spriteBatch.begin();
 		if (bg != null) {
 			bg.render(this);
@@ -42,13 +84,21 @@ public class RenderManager {
 			bg2.render(this);
 		}
 		spriteBatch.end();
+		//Gdx.gl10.glViewport(cX, cY, (int)w, (int)h);
+		camera.update();
+        camera.apply(Gdx.gl10);
 		// render everything in renderList and output fps if f is pressed
-		if (Gdx.input.isKeyPressed(Keys.F)) {
+		/*if (Gdx.input.isKeyPressed(Keys.F)) {
 			System.out.println(Gdx.graphics.getFramesPerSecond());
+		}*/
+		if(bound != null){
+			setCamera((int) (bound.getPosition().x * 60 - w / 2), (int) (bound.getPosition().y * 60 - 3*h/4));
 		}
 		for (RenderLayer layer : renderList) {
 			layer.render();
 		}
+		//Gdx.gl10.glViewport(0, 0, (int)w, (int)h);
+		setCamera(0, 0);
 		spriteBatch.begin();
 		if (fg != null) {
 			fg.render(this);

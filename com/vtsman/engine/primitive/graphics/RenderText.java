@@ -13,37 +13,31 @@ public class RenderText implements IRenderer{
 	
 	@Override
 	public void render(RenderManager rm) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public RenderType getRenderType() {
-		// TODO Auto-generated method stub
 		return RenderType.sprite;
 	}
 
 	@Override
 	public int getLayer() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setPosition(float x, float y) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setRotation(float rot) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void bindToBody(Body b) {
-		// TODO Auto-generated method stub
 		
 	}
 

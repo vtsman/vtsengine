@@ -13,7 +13,6 @@ public class ScreenshotHandler implements ITickable {
 
 	@Override
 	public void tick() {
-		// TODO Auto-generated method stub
 
 	}
 

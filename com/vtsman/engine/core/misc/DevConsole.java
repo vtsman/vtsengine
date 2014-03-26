@@ -7,13 +7,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.vtsman.engine.core.Game;
 import com.vtsman.engine.core.map.MapParser;
-import com.vtsman.engine.gameObjects.entities.Bullet;
 import com.vtsman.engine.gameObjects.entities.Player;
 
 public class DevConsole implements ISubscriber {
 
-	@Override
-	public void onEvent(String event) {
+	public void onEvent(String event, Object ... args) {
 		String s = (String) JOptionPane
 				.showInputDialog(
 						new JFrame(),
@@ -45,14 +43,6 @@ public class DevConsole implements ISubscriber {
 						Game.loadedMap.addObject(p);
 					}
 				}
-				if(args[1].equals("bullet")){
-					if(Game.loadedMap == null)
-						return;
-					Bullet b = new Bullet(new Vector2((float)Integer.parseInt(args[2]), (float)Integer.parseInt(args[3]))
-					, new Vector2((float)Integer.parseInt(args[4]), (float)Integer.parseInt(args[5]))
-					,Integer.parseInt(args[6]) , Float.parseFloat(args[7]), args[8], 10);
-					Game.loadedMap.addObject(b);
-				}
 			}
 			if (args[0].equals("setGravity")) {
 				if (Game.loadedMap == null)
@@ -71,6 +61,23 @@ public class DevConsole implements ISubscriber {
 					Game.devMode = false;
 				}
 			}
+			if(args[0].equals("lockCameraOn")){
+				if(args[1].equals("player")){
+					Game.getRenderer().bindToBody(Game.loadedMap.players.get(Integer.parseInt(args[2])).getBody());
+				}
+				if(isInteger(args[1])){
+					Game.getRenderer().bindToBody(null);
+					Game.getRenderer().setCamera(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+				}
+			}
 		}
+	}
+	private static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	    return true;
 	}
 }

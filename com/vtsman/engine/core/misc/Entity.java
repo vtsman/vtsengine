@@ -18,7 +18,7 @@ public abstract class Entity implements ITickable, IPhysable{
 	}
 	
 	public void setPosition(Vector2 pos){
-		body.getBody(null).setTransform(pos, 0);
+		body.body.setTransform(pos, 0);
 	}
 	/**
 	 * Must NOT return new IRenderer every time
@@ -29,7 +29,7 @@ public abstract class Entity implements ITickable, IPhysable{
 	
 	public void create(Map parent){
 		parent.addEntity(this);
-		body.getBody(parent.world);
+		body.createBody(parent.world);
 		Game.getRenderer().addRenderer(this.getRenderer());
 	}
 	

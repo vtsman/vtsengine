@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.files.FileHandle;
 
 public class KeyHandler implements ITickable {
 	static HashMap<String, Integer> keys = new HashMap<String, Integer>();
@@ -13,6 +14,8 @@ public class KeyHandler implements ITickable {
 
 	static {
 		System.out.println("Binding Keys");
+		
+		
 		keys.put("up", Keys.W);
 		keys.put("down", Keys.S);
 		keys.put("left", Keys.A);
@@ -41,7 +44,7 @@ public class KeyHandler implements ITickable {
 		subbed.get(s).add(key);
 	}
 
-	static synchronized public void addKey(String name, int key) {
+	static synchronized public void addKey(String name, int key, boolean override) {
 		keys.put(name, key);
 	}
 
@@ -50,7 +53,30 @@ public class KeyHandler implements ITickable {
 	}
 
 	public boolean isButtonPressed(String s) {
-		return Gdx.input.isButtonPressed(keys.get(s));
+		return Gdx.input.isKeyPressed(keys.get(s).intValue());
+	}
+	
+	public void readFromFile(FileHandle f){
+		String[] lines = f.readString().split("\n");
+		for(String s : lines){
+			String key = s.substring(0, s.lastIndexOf('='));
+			String value = s.substring(s.lastIndexOf('=') + 1, s.length());
+			if(isInteger(value)){
+				keys.put(key, Integer.parseInt(value));
+			}
+			else{
+				keys.put(key, Keys.valueOf(value));
+			}
+		}
+	}
+	
+	private static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	    return true;
 	}
 
 }

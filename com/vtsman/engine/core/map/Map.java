@@ -2,20 +2,17 @@ package com.vtsman.engine.core.map;
 
 import java.util.*;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.vtsman.engine.core.Game;
 import com.vtsman.engine.core.graphics.IRenderer;
 import com.vtsman.engine.core.misc.Entity;
 import com.vtsman.engine.core.misc.ISubscriber;
 import com.vtsman.engine.core.misc.ITickable;
+import com.vtsman.engine.core.misc.Sensor;
 import com.vtsman.engine.gameObjects.entities.Player;
 
 public class Map implements ITickable {
@@ -23,98 +20,27 @@ public class Map implements ITickable {
 	final int velocityIterations = 6;
 	final int positionIterations = 2;
 	public World world = new World(new Vector2(0, -20), true);
+	int height = Gdx.graphics.getHeight();
+	int width = Gdx.graphics.getWidth();
 
 	private List<Entity> entities = new ArrayList<Entity>();
-	private ArrayList<Player> players = new ArrayList<Player>();
-	private ArrayList<Fixture> playfix = new ArrayList<Fixture>();
-	private HashMap<Fixture, String> fixName = new HashMap<Fixture, String>();
-	private HashMap<String, HashMap<Fixture, ISubscriber>> subbed = new HashMap<String, HashMap<Fixture, ISubscriber>>();
-	Map() {
-		world.setContactListener(new ContactListener() {
+	public ArrayList<Player> players = new ArrayList<Player>();
+	public ArrayList<Fixture> playfix = new ArrayList<Fixture>();
+	public HashMap<Fixture, String> fixName = new HashMap<Fixture, String>();
+	public HashMap<Fixture, Object> fixData = new HashMap<Fixture, Object>();
+	public HashMap<String, HashMap<Fixture, ISubscriber>> subbed = new HashMap<String, HashMap<Fixture, ISubscriber>>();
+	public HashMap<String, Sensor> sensors = new HashMap<String, Sensor>();
 
-			@Override
-			public void beginContact(Contact contact) {
-				if(contact.getFixtureA().getBody() == contact.getFixtureB().getBody())
-					return;
-				if (playfix.contains(contact.getFixtureA())) {
-					players.get(playfix.indexOf(contact.getFixtureA())).onGround++;
-				}
-				if (playfix.contains(contact.getFixtureB())) {
-					players.get(playfix.indexOf(contact.getFixtureB())).onGround++;
-				}
-				if(fixName.containsKey(contact.getFixtureA())){
-					String event = fixName.get(contact.getFixtureA());
-					if(!subbed.containsKey(event)){
-						return;
-					}
-					if(!subbed.get(event).containsKey(contact.getFixtureB())){
-						return;
-					}
-					subbed.get(event).get(contact.getChildIndexB()).onEvent("start" + event);
-				}
-				if(fixName.containsKey(contact.getFixtureB())){
-					String event = fixName.get(contact.getFixtureB());
-					if(!subbed.containsKey(event)){
-						return;
-					}
-					if(!subbed.get(event).containsKey(contact.getFixtureA())){
-						return;
-					}
-					subbed.get(event).get(contact.getChildIndexA()).onEvent("start" + event);
-				}
-			}
-
-			@Override
-			public void endContact(Contact contact) {
-				if(contact.getFixtureA().getBody() == contact.getFixtureB().getBody())
-					return;
-				if (playfix.contains(contact.getFixtureA())) {
-					players.get(playfix.indexOf(contact.getFixtureA())).onGround--;
-				}
-				if (playfix.contains(contact.getFixtureB())) {
-					players.get(playfix.indexOf(contact.getFixtureB())).onGround--;
-				}
-				if(fixName.containsKey(contact.getFixtureA())){
-					String event = fixName.get(contact.getFixtureA());
-					if(!subbed.containsKey(event)){
-						return;
-					}
-					if(!subbed.get(event).containsKey(contact.getFixtureB())){
-						return;
-					}
-					subbed.get(event).get(contact.getChildIndexB()).onEvent("end" + event);
-				}
-				if(fixName.containsKey(contact.getFixtureB())){
-					String event = fixName.get(contact.getFixtureB());
-					if(!subbed.containsKey(event)){
-						return;
-					}
-					if(!subbed.get(event).containsKey(contact.getFixtureA())){
-						return;
-					}
-					subbed.get(event).get(contact.getChildIndexA()).onEvent("end" + event);
-				}
-			}
-
-			@Override
-			public void preSolve(Contact contact, Manifold oldManifold) {
-				
-			}
-
-			@Override
-			public void postSolve(Contact contact, ContactImpulse impulse) {
-				// TODO Auto-generated method stub
-
-			}
-		});
+	public Map() {
+		world.setContactListener(new MapContactListener(this));
 	}
 
 	public synchronized void addEntity(Entity e) {
 		entities.add(e);
-		if(e instanceof Player){
-			players.add((Player) e);
-			playfix.add(((Player)e).s);
-		}
+		/*
+		 * if (e instanceof Player) { players.add((Player) e);
+		 * playfix.add(((Player) e).s); }
+		 */
 	}
 
 	public synchronized void removeEntity(Entity e) {
@@ -130,19 +56,27 @@ public class Map implements ITickable {
 	public void addObject(Object o) {
 		if (o instanceof Entity) {
 			((Entity) o).create(this);
-			addEntity((Entity) o);
+			// addEntity((Entity) o);
 		}
 		if (o instanceof IRenderer) {
 			Game.getRenderer().addRenderer((IRenderer) o);
 		}
+		if (o instanceof ITickable) {
+			Game.getTicker().add((ITickable) o);
+		}
 	}
-	
-	public void addFixtureEvent(Fixture f, String name){
+
+	public void addFixtureEvent(Fixture f, String name) {
 		fixName.put(f, name);
 	}
-	
-	public void subscribeToFixtureEvent(String event, Fixture f, ISubscriber subber){
-		if(!subbed.containsKey(event)){
+
+	public void addFixtureData(Fixture f, Object data) {
+		fixData.put(f, data);
+	}
+
+	public void subscribeToFixtureEvent(String event, Fixture f,
+			ISubscriber subber) {
+		if (!subbed.containsKey(event)) {
 			subbed.put(event, new HashMap<Fixture, ISubscriber>());
 		}
 		subbed.get(event).put(f, subber);

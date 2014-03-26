@@ -114,7 +114,7 @@ public class MakePhysCircle implements ObjectConstructor {
 	@Override
 	public Object make(Map m) {
 		Body b = BodyMaker.makeCircle(radius, x, y, fric, bounce, density, bt)
-				.getBody(m.world);
+				.createBody(m.world);
 		if (fixedRot) {
 			b.setFixedRotation(true);
 		}

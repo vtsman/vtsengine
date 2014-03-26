@@ -80,7 +80,6 @@ public class PolyWire implements IRenderer {
 
 	@Override
 	public void bindToBody(Body b) {
-		// TODO Auto-generated method stub
 
 	}
 

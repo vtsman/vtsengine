@@ -115,7 +115,7 @@ public class MakePhysPoly implements ObjectConstructor {
 		out.setPosition(x, y);
 		out.setColor(new Color(r, g, b, a));
 		out.setRotation(rot);
-		out.bindToBody(BodyMaker.makePolygon(verts, x, y, friction, bounce, density, bt).getBody(m.world));
+		out.bindToBody(BodyMaker.makePolygon(verts, x, y, friction, bounce, density, bt).createBody(m.world));
 		reset();
 		return out;
 	}

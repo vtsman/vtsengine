@@ -121,7 +121,7 @@ public class MakePhysRect implements ObjectConstructor {
 	@Override
 	public Object make(Map m) {
 		Body b = BodyMaker.makeRectangle(width, height, x, y, fric, bounce, density, bt)
-				.getBody(m.world);
+				.createBody(m.world);
 		if (fixedRot) {
 			b.setFixedRotation(true);
 		}
