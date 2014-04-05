@@ -40,7 +40,7 @@ public class RenderManager {
 		camera.position.set(w / 2, h / 2, 0);
 	}
 	//TODO camera smoothing
-	public void setCamera(int x, int y){
+	public void setCamera(float x, float y){
 		if(x < 0){
 			x = 0;
 		}
@@ -48,15 +48,14 @@ public class RenderManager {
 			y = 0;
 		}
 		if(x + w > frameW){
-			x = (int) (frameW - w);
+			x = frameW - w;
 		}
 		
 		if(y + h > frameH){
-			y = (int) (frameH - h);
+			y = frameH - h;
 		}
 		camera.position.set(x + w / 2, y + h / 2, 0);
 		camera.update();
-        camera.apply(Gdx.gl10);
 		
 		spriteBatch.setProjectionMatrix(camera.combined);
 		polySpriteBatch.setProjectionMatrix(camera.combined);
@@ -70,11 +69,8 @@ public class RenderManager {
 		frameW = w;
 		frameH = h;
 	}
-
+	//static float lastX = 0;
 	public synchronized void render() {
-		// render background
-		
-		//Gdx.gl10.glViewport(0, 0, (int)w, (int)h);
 		setCamera(0, 0);
 		spriteBatch.begin();
 		if (bg != null) {
@@ -84,20 +80,17 @@ public class RenderManager {
 			bg2.render(this);
 		}
 		spriteBatch.end();
-		//Gdx.gl10.glViewport(cX, cY, (int)w, (int)h);
-		camera.update();
-        camera.apply(Gdx.gl10);
-		// render everything in renderList and output fps if f is pressed
-		/*if (Gdx.input.isKeyPressed(Keys.F)) {
-			System.out.println(Gdx.graphics.getFramesPerSecond());
-		}*/
 		if(bound != null){
-			setCamera((int) (bound.getPosition().x * 60 - w / 2), (int) (bound.getPosition().y * 60 - 3*h/4));
+			float x = bound.getPosition().x * 60 - w / 2;
+			float y = bound.getPosition().y * 60 - 3*h/4;
+			
+			//System.out.println(Math.abs(x - lastX));
+			//lastX = x;
+			setCamera(x, y);
 		}
 		for (RenderLayer layer : renderList) {
 			layer.render();
 		}
-		//Gdx.gl10.glViewport(0, 0, (int)w, (int)h);
 		setCamera(0, 0);
 		spriteBatch.begin();
 		if (fg != null) {

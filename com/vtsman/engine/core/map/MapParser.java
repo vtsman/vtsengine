@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.vtsman.engine.core.Game;
+import com.vtsman.engine.core.misc.DevConsole;
 import com.vtsman.engine.core.misc.Sensor;
 import com.vtsman.engine.core.utils.ArrayWrapper;
 import com.vtsman.engine.primitive.graphics.RenderTexture;
@@ -27,6 +28,7 @@ public class MapParser {
 		objConst.put("poly_decoration", new MakeDecorPoly());
 		objConst.put("poly_playform", new MakePhysPoly(BodyType.StaticBody));
 		objConst.put("poly_box", new MakePhysPoly(BodyType.DynamicBody));
+		objConst.put("command", new MakeCommandRunner());
 	}
 	
 	public Map decodeMap(String s){
@@ -63,17 +65,27 @@ public class MapParser {
 			out.width = (Integer) Gdx.graphics.getHeight();
 			Game.getRenderer().setFrameDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
-		
 		for(java.util.Map.Entry<String, Object> a : madeObjects.entrySet()){
 			out.addObject(a.getValue());
 			if(a.getValue() instanceof Sensor){
 				out.sensors.put(a.getKey(), (Sensor) a.getValue());
+				out.sensorsIBool.put(a.getKey(), (Sensor) a.getValue());
 			}
+		}
+		if(madeObjects.containsKey("onStart")){
+			Object[] obs = ((ArrayWrapper)madeObjects.get("onStart")).getArr();
+			String[] commands = new String[obs.length];
+			for(int i = 0; i < obs.length; i++){
+				commands[i] = (String)obs[i];
+			}
+			DevConsole.evaluate(commands, out);
 		}
 		return out;
 	}
 	
 	private void executeString(String s, Map m){
+		if(s.startsWith("//"))
+			return;
 		if(! inBraces && s.endsWith("{")){
 			String[] lines = s.split(" ");
 			currentConst = objConst.get(lines[0]);
@@ -117,15 +129,6 @@ public class MapParser {
 	}
 	
 	private Object parseArg(String s){
-		if(isInteger(s)){
-			return Integer.parseInt(s);
-		}
-		if(isFloat(s)){
-			return Float.parseFloat(s);
-		}
-		if(s.startsWith("\"") && s.endsWith("\"")){
-			return s.substring(1, s.length() - 1);
-		}
 		if(s.contains(",")){
 			ArrayWrapper out = new ArrayWrapper();
 			String[] entries = s.split(",");
@@ -136,6 +139,15 @@ public class MapParser {
 			out.setArr(objs);
 			return out;
 		}
+		if(isInteger(s)){
+			return Integer.parseInt(s);
+		}
+		if(isFloat(s)){
+			return Float.parseFloat(s);
+		}
+		if(s.startsWith("\"") && s.endsWith("\"")){
+			return s.substring(1, s.length() - 1);
+		}
 		if(s.equals("true")){
 			return true;
 		}
@@ -145,6 +157,7 @@ public class MapParser {
 		if(this.madeObjects.containsKey(s)){
 			return this.madeObjects.get(s);
 		}
+		System.out.println("Warning: variable does not exist or syntax error with \"" + s + "\"");
 		return null;
 	}
 	

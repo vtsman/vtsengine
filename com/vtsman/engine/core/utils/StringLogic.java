@@ -34,12 +34,16 @@ public class StringLogic implements IBoolExpr {
 				}
 			}
 		}
-		condense();
-		op = inst.get(0);
-		for (int i = 0; i < inst.size(); i++) {
-			if (inst.get(i).getNumArgs() > 0) {
-				op = new Statement(inst.get(i), new IBoolExpr[] { op,
-						inst.get(i + 1) });
+		if (expressions.length == 1) {
+			op = expressions[0];
+		} else {
+			condense();
+			op = inst.get(0);
+			for (int i = 0; i < inst.size(); i++) {
+				if (inst.get(i).getNumArgs() > 0) {
+					op = new Statement(inst.get(i), new IBoolExpr[] { op,
+							inst.get(i + 1) });
+				}
 			}
 		}
 	}
@@ -93,11 +97,11 @@ public class StringLogic implements IBoolExpr {
 	private void evalTF() {
 		for (int i = 0; i < words.length; i++) {
 			if (!marked[i]) {
-				if (words[i].equals("true")) {
+				if (words[i].toLowerCase().equals("true")) {
 					expressions[i] = new BoolWrapper(true);
 					marked[i] = true;
 				}
-				if (words[i].equals("false")) {
+				if (words[i].toLowerCase().equals("false")) {
 					expressions[i] = new BoolWrapper(false);
 					marked[i] = true;
 				}

@@ -13,6 +13,7 @@ import com.vtsman.engine.core.misc.Entity;
 import com.vtsman.engine.core.misc.ISubscriber;
 import com.vtsman.engine.core.misc.ITickable;
 import com.vtsman.engine.core.misc.Sensor;
+import com.vtsman.engine.core.utils.IBoolExpr;
 import com.vtsman.engine.gameObjects.entities.Player;
 
 public class Map implements ITickable {
@@ -30,6 +31,7 @@ public class Map implements ITickable {
 	public HashMap<Fixture, Object> fixData = new HashMap<Fixture, Object>();
 	public HashMap<String, HashMap<Fixture, ISubscriber>> subbed = new HashMap<String, HashMap<Fixture, ISubscriber>>();
 	public HashMap<String, Sensor> sensors = new HashMap<String, Sensor>();
+	public HashMap<String, IBoolExpr> sensorsIBool = new HashMap<String, IBoolExpr>();
 
 	public Map() {
 		world.setContactListener(new MapContactListener(this));

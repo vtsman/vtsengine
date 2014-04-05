@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.vtsman.engine.core.Game;
+import com.vtsman.engine.core.map.Map;
 import com.vtsman.engine.core.map.MapParser;
 import com.vtsman.engine.gameObjects.entities.Player;
 
@@ -23,15 +24,16 @@ public class DevConsole implements ISubscriber {
 		String[] commands = s.split("; ");
 		evaluate(commands);
 	}
-	public static void evaluate(String[] commands){
+	public static void evaluate(String[] commands, Map m){
+		
 		for (String st : commands) {
 			String[] args = st.split(" ");
 			if (args[0].matches("load")) {
 				Game.getRenderer().flush();
 				Game.getTicker().flush();
-				Game.loadedMap = new MapParser().decodeMap(Gdx.files.internal(
+				m = new MapParser().decodeMap(Gdx.files.internal(
 						"./bin/maps/" + args[1]).readString());
-				Game.getTicker().add(Game.loadedMap);
+				Game.getTicker().add(m);
 				Game.getTicker().addEssentials();
 			}
 			if (args[0].equals("spawn")) {
@@ -39,15 +41,15 @@ public class DevConsole implements ISubscriber {
 					Player p = new Player(new Vector2(
 							Integer.parseInt(args[2]),
 							Integer.parseInt(args[3])), args[4]);
-					if (Game.loadedMap != null) {
-						Game.loadedMap.addObject(p);
+					if (m != null) {
+						m.addObject(p);
 					}
 				}
 			}
 			if (args[0].equals("setGravity")) {
-				if (Game.loadedMap == null)
+				if (m == null)
 					return;
-				Game.loadedMap.world.setGravity(new Vector2(Integer
+				m.world.setGravity(new Vector2(Integer
 						.parseInt(args[1]), Integer.parseInt(args[2])));
 			}
 			if(args[0].equals("setTickDelay")){
@@ -63,7 +65,7 @@ public class DevConsole implements ISubscriber {
 			}
 			if(args[0].equals("lockCameraOn")){
 				if(args[1].equals("player")){
-					Game.getRenderer().bindToBody(Game.loadedMap.players.get(Integer.parseInt(args[2])).getBody());
+					Game.getRenderer().bindToBody(m.players.get(Integer.parseInt(args[2])).getBody());
 				}
 				if(isInteger(args[1])){
 					Game.getRenderer().bindToBody(null);
@@ -72,6 +74,11 @@ public class DevConsole implements ISubscriber {
 			}
 		}
 	}
+	
+	public static void evaluate(String[] commands){
+		evaluate(commands, Game.loadedMap);
+	}
+	
 	private static boolean isInteger(String s) {
 	    try { 
 	        Integer.parseInt(s); 

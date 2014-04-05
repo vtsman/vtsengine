@@ -47,7 +47,7 @@ public class PolyWire implements IRenderer {
 			c.a = 0.2f;//minTrans + (float)(maxTrans - minTrans) / (float)grad * (float)(grad - i);
 			w = (int)(innerWidth + (float)(width - innerWidth) / (float)grad * i);
 			System.out.println(c.a + ", " + w);
-			Gdx.gl10.glLineWidth(w);
+			Gdx.gl20.glLineWidth(w);
 			r.begin(ShapeType.Line);
 			r.translate(x, y, 0);
 			r.rotate(0,0, 1, rot);

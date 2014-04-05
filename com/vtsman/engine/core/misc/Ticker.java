@@ -16,11 +16,7 @@ public class Ticker implements Runnable {
 				if (!alive) {
 					break;
 				}
-				for (ITickable t : tickables) {
-					synchronized (t) {
-						t.tick();
-					}
-				}
+				runOnce();
 			}
 			if (System.currentTimeMillis() - start < ticktime) {
 				try {
@@ -31,6 +27,14 @@ public class Ticker implements Runnable {
 		}
 	}
 
+	public void runOnce(){
+		for (ITickable t : tickables) {
+			synchronized (t) {
+				t.tick();
+			}
+		}
+	}
+	
 	public synchronized void addEssentials(){
 		tickables.add(Game.keyHandler);
 	}
