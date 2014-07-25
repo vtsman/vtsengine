@@ -39,8 +39,7 @@ public class Game implements ApplicationListener {
 
 		game = this;
 		if (!singleThreaded)
-			;
-		new Thread(t).start();
+			new Thread(t).start();
 		if (Gdx.files.internal("./bin/auto.conf").exists()) {
 			System.out.println("Found auto-config file");
 			DevConsole.evaluate(Gdx.files.internal("./bin/auto.conf")
